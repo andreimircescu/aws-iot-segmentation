@@ -82,29 +82,3 @@ def _check_for_stamp(message):
         has_uuid = message[:UUID_LENGTH].count("-") == 4  # yeah, i know, it does not need to be bulletproof
         return has_seg_index and has_uuid
 
-
-def __generate_big_message():
-    long_msg = ''
-    added_char = 'a'
-    while sys.getsizeof(long_msg) < MAX_SIZE:
-        long_msg = long_msg + added_char
-    while sys.getsizeof(long_msg) < MAX_SIZE * 2:
-        added_char = 'b'
-        long_msg = long_msg + added_char
-    while sys.getsizeof(long_msg) < MAX_SIZE * 3:
-        added_char = 'c'
-        long_msg = long_msg + added_char
-    while sys.getsizeof(long_msg) < MAX_SIZE * 8:
-        added_char = 'd'
-        long_msg = long_msg + added_char
-    return long_msg
-
-
-if __name__ == "__main__":
-    message = __generate_big_message()
-    print len(message)
-    msg_iterator = segment_message(message)
-    for msgz in msg_iterator:
-        msgx = get_message(msgz)
-        if msgx == message:
-            print "MATCH"
