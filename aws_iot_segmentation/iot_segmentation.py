@@ -81,4 +81,3 @@ def _check_for_stamp(message):
         has_seg_index = message[:STAMP_LENGTH][-4:].count("|") == 2
         has_uuid = message[:UUID_LENGTH].count("-") == 4  # yeah, i know, it does not need to be bulletproof
         return has_seg_index and has_uuid
-
