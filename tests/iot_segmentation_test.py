@@ -19,7 +19,8 @@ class IotSegmentationTests(unittest.TestCase):
         msg = "this is a normal message dooh"
         for seg_msg in iot_segmentation.segment_message(msg):
             self.assertEqual(msg, seg_msg)
-            return
+            # feed it to the receiving side:
+            self.assertEqual(msg, iot_segmentation.get_message(seg_msg))
 
     def test_bad_input(self):
         bad_input = None
