@@ -1,8 +1,8 @@
-from setuptools import setup, find_packages
+from distutils.core import setup
 setup(
     name='aws-iot-segmentation',
-    packages=find_packages(exclude=['tests']),
-    version='0.1',
+    packages=['aws_iot_segmentation'],
+    version='0.3',
     description='A library which segments big message to be sent on AWS IOT Broker',
     author='Andrei Mircescu',
     author_email='mircescu.andrei@gmail.com',
