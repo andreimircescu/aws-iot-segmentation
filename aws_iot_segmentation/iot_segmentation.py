@@ -32,6 +32,10 @@ class _Segments(list):
 
 
 def segment_message(message):
+    if not type(message) == str:
+        # we can say that we are covered by size
+        # but is nice to be guarded in case of a big object arrives
+        raise Exception("Bad input, only strings accepted.")
     size = sys.getsizeof(message)
     message_uuid = str(uuid4())
     if size < MAX_SIZE:
