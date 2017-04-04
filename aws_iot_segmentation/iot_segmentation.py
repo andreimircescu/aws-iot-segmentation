@@ -37,9 +37,7 @@ class _Segments(list):
             self[index] = message
 
     def get_message(self):
-
         if self.message_segments == len(self) - 1:  # started from 0
-
             return "".join(self)
 
 
@@ -91,8 +89,6 @@ def get_message(message):
         return full_msg
     else:
         return message
-
-    # check for message completion
 
 
 def _check_for_stamp(message):
