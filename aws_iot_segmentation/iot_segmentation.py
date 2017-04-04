@@ -22,13 +22,24 @@ class _Segments(list):
             self.message_segments = index
             return
         message = item[4:]
-        if(index >= len(self)):
-            self.append(message)
+        if index == 0:
+            # 2 cases: one when the list is empty and one when it's not
+            if not len(self):
+                self.append(message)
+            else:
+                self[index] = message
         else:
-            self.insert(index, message)
+            # check to see if extend is required
+            length_required = index + 1
+            if len(self) < length_required:
+                diff = length_required - len(self)
+                self.extend([None] * diff)
+            self[index] = message
 
     def get_message(self):
+
         if self.message_segments == len(self) - 1:  # started from 0
+
             return "".join(self)
 
 

@@ -51,6 +51,40 @@ class IotSegmentationTests(unittest.TestCase):
         self.assertTrue(is_equal)
         self.assertEqual(iot_segmentation.MESSAGE_DICT, {})
 
+    def test_not_in_order_transmission(self):
+        big_input = self._get_big_input()
+        # feed it to be segmented
+        iterator = iot_segmentation.segment_message(big_input)
+
+        is_equal = False
+        temp_list = []
+
+        for msg in iterator:
+            temp_list.append(msg)
+
+        # msg has 14 segments
+        temp_list[0], temp_list[9] = temp_list[9], temp_list[0]
+        temp_list[3], temp_list[6] = temp_list[6], temp_list[3]
+        temp_list[5], temp_list[10] = temp_list[10], temp_list[5]
+        temp_list[8], temp_list[14] = temp_list[14], temp_list[8]
+        temp_list[13], temp_list[0] = temp_list[0], temp_list[13]
+        for msg in temp_list:
+            # feed it back to reconstruct
+            full_msg = iot_segmentation.get_message(msg)
+            if full_msg:
+                is_equal = full_msg == big_input
+                if not is_equal:
+                    equal_length = len(full_msg) == len(big_input)
+                    if equal_length:
+                        for index in range(0, len(full_msg)):
+                            matching = full_msg[index] == big_input[index]
+                            print "POS: %i -> full_msg[%i] = %s | big_input[%i] = %s XX %s" % (index, index,
+                                                                                               full_msg[index],
+                                                                                               index, big_input[index],
+                                                                                               str(matching))
+        self.assertTrue(is_equal)
+        self.assertEqual(iot_segmentation.MESSAGE_DICT, {})
+
     def _get_big_input(self):
         return " dummy string " * iot_segmentation.MAX_SIZE
 
