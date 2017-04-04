@@ -1,12 +1,14 @@
 # -*- coding: utf-8 -*-
 import sys
+import math
 from uuid import uuid4
 
 MAX_SIZE = 128000
 STAMP_SIZE = 70
 STAMP_LENGTH = 40
 UUID_LENGTH = 36
-NEEDED_SIZE = MAX_SIZE - STAMP_SIZE
+BUFFER = 50
+NEEDED_SIZE = MAX_SIZE - STAMP_SIZE - BUFFER
 MESSAGE_DICT = {}
 
 
@@ -20,8 +22,7 @@ class _Segments(list):
             self.message_segments = index
             return
         message = item[4:]
-
-        if(index > len(self)):
+        if(index >= len(self)):
             self.append(message)
         else:
             self.insert(index, message)
@@ -36,40 +37,47 @@ def segment_message(message):
         # we can say that we are covered by size
         # but is nice to be guarded in case of a big object arrives
         raise Exception("Bad input, only strings accepted.")
+
     size = sys.getsizeof(message)
     message_uuid = str(uuid4())
+
     if size < MAX_SIZE:
         yield message
     else:
-        segment_count = 0
-        while True:
-            stamp = message_uuid + "|" + str(segment_count).zfill(2) + "|"
+        needed_segments = float("{0:.02f}".format(size / float(NEEDED_SIZE)))
+        full_segments = int(needed_segments)
+        trailing = needed_segments - full_segments > 0
 
-            if not message:
-                # all segements had been sent. Send  only the uuid and the number of segments
-                yield stamp
-                break
-            for i in range(0, len(message) - 1):
-                size = sys.getsizeof(message[0:i])
-                next_size = sys.getsizeof(message[0:i + 1])
-                if next_size > NEEDED_SIZE:
-                    segment_count += 1
-                    yield stamp + message[:i]
-                    message = message[i:]
-                    break
-                if i + 1 == len(message) - 1:
-                    # reached the end of message
-                    yield stamp + message
-                    message = None
-                    break
+        # we extract 1 from needed_segments because 0 is counted
+        last_segment_index = int(math.ceil(needed_segments) - 1)
+
+        # send the stamp first to tell how much to expect. This will also be the last index that is sent
+        # order arrival is not important actually
+        stamp = message_uuid + "|" + str(last_segment_index).zfill(2) + "|"
+        yield stamp
+
+        for i in range(0, full_segments):
+            stamp = message_uuid + "|" + str(i).zfill(2) + "|"
+            yield stamp + message[:NEEDED_SIZE]
+            message = message[NEEDED_SIZE:]
+
+        if trailing:
+            # send the last part
+            stamp = message_uuid + "|" + str(last_segment_index).zfill(2) + "|"
+            yield stamp + message
 
 
 def get_message(message):
+    global MESSAGE_DICT
     if _check_for_stamp(message):
         uuid = message[:UUID_LENGTH]
         message = message[UUID_LENGTH:]
         MESSAGE_DICT.setdefault(uuid, _Segments()).add(message)
-        return MESSAGE_DICT[uuid].get_message()
+        full_msg = MESSAGE_DICT[uuid].get_message()
+        if full_msg:
+            # delete the entry in the dict
+            del MESSAGE_DICT[uuid]
+        return full_msg
     else:
         return message
 

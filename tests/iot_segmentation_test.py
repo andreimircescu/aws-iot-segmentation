@@ -28,17 +28,28 @@ class IotSegmentationTests(unittest.TestCase):
         with self.assertRaises(Exception):
             iterator.next()
 
-    def test_big_input_same_message(self):
+    def test_big_input_same_message_delete_from_dict(self):
         big_input = self._get_big_input()
         # feed it to be segmented
         iterator = iot_segmentation.segment_message(big_input)
+
         is_equal = False
         for msg in iterator:
             # feed it back to reconstruct
             full_msg = iot_segmentation.get_message(msg)
             if full_msg:
                 is_equal = full_msg == big_input
+                if not is_equal:
+                    equal_length = len(full_msg) == len(big_input)
+                    if equal_length:
+                        for index in range(0, len(full_msg)):
+                            matching = full_msg[index] == big_input[index]
+                            print "POS: %i -> full_msg[%i] = %s | big_input[%i] = %s XX %s" % (index, index,
+                                                                                               full_msg[index],
+                                                                                               index, big_input[index],
+                                                                                               str(matching))
         self.assertTrue(is_equal)
+        self.assertEqual(iot_segmentation.MESSAGE_DICT, {})
 
     def _get_big_input(self):
         return " dummy string " * iot_segmentation.MAX_SIZE

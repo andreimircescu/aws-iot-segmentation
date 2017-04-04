@@ -29,5 +29,5 @@ BTW: it supports only strings yet(?)
 
 ## TO DO
 * ***Other data structures***
-* ***Speed up the segmentation***
+* ~~***Speed up the segmentation***~~ **done**
 * ***Separate thread with callbacks on done***
