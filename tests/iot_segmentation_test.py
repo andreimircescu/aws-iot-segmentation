@@ -62,7 +62,7 @@ class IotSegmentationTests(unittest.TestCase):
         for msg in iterator:
             temp_list.append(msg)
 
-        # msg has 14 segments
+        # msg has 15 segments
         temp_list[0], temp_list[9] = temp_list[9], temp_list[0]
         temp_list[3], temp_list[6] = temp_list[6], temp_list[3]
         temp_list[5], temp_list[10] = temp_list[10], temp_list[5]
